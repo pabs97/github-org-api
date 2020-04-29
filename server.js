@@ -22,11 +22,9 @@ app.get('/org/:org', async (req, res) => {
   console.log(req.params.org);
   const { org } = req.params;
   const { sortkey } = req.query;
-
   let reposList = cache.get(org);
 
   try {
-
     if (reposList) {
       console.log('fetching repos from cache...');
     } else {
@@ -48,13 +46,10 @@ app.get('/org/:org', async (req, res) => {
 });
 
 app.get('/commits/:owner/:repo', async (req, res) => {
-  console.log(req.params.org);
+  console.log(req.params);
   const { owner, repo } = req.params;
   const repoKey = owner + '/' + repo;
-
   let commitsList = cache.get(repoKey);
-
-  ///repos/:owner/:repo/commits
 
   try {
     if (commitsList) {
@@ -65,7 +60,7 @@ app.get('/commits/:owner/:repo', async (req, res) => {
       console.log('not in cache, requesting from', commitsEnpoint);
       const response = await get(commitsEnpoint, OPTIONS);
       commitsList = JSON.parse(response.body);
-      cache.set(org, commitsList, TTL);
+      cache.set(repoKey, commitsList, TTL);
     }
 
     res.send(commitsList);
@@ -74,8 +69,6 @@ app.get('/commits/:owner/:repo', async (req, res) => {
     throw e;
   }
 });
-
-
 
 app.listen(PORT);
 console.log(`started server on ${PORT}...`);
